@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargar Juego Seguro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://rawgit.com/aws/amazon-cognito-identity-js/master/dist/amazon-cognito-identity.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎮 Game Launcher</h1>
+        
+        <div id="login-section">
+            <h2>Acceso Restringido</h2>
+            <input type="text" id="username" placeholder="Email o Usuario">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Iniciar Sesión</button>
+            <p id="error-msg" class="error"></p>
+        </div>
+
+        <div id="download-section" class="hidden">
+            <h2>¡Hola, <span id="user-display">Usuario</span>!</h2>
+            <div class="status-box">
+                <p>Tu licencia es válida.</p>
+                <p id="file-info" style="color: #4cd137; font-weight: bold;"></p>
+            </div>
+            
+            <button id="btn-download" onclick="getDownloadLink()">OBTENER JUEGO (.ZIP)</button>
+            
+            <p id="status-msg"></p>
+            <button onclick="logout()" class="secondary">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
