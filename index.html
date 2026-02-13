@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Descargar Juego Seguro</title>
+    <title>Game Launcher - Registro</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.2.0/dist/amazon-cognito-identity.min.js"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
@@ -14,22 +14,40 @@
         <h1>🎮 Game Launcher</h1>
         
         <div id="login-section">
-            <h2>Acceso Restringido</h2>
-            <input type="text" id="username" placeholder="Email o Usuario">
+            <h2>Iniciar Sesión</h2>
+            <input type="text" id="username" placeholder="Usuario o Email">
             <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="login()">Iniciar Sesión</button>
+            <button onclick="login()">Entrar</button>
             <p id="error-msg" class="error"></p>
+            <hr>
+            <p>¿No tienes cuenta? <a href="#" onclick="showSection('register-section')" class="link">Regístrate</a></p>
+        </div>
+
+        <div id="register-section" class="hidden">
+            <h2>Crear Cuenta</h2>
+            <input type="text" id="reg-username" placeholder="Nombre de usuario">
+            <input type="email" id="reg-email" placeholder="Correo electrónico">
+            <input type="password" id="reg-password" placeholder="Contraseña">
+            <button onclick="register()">Crear cuenta</button>
+            <p id="reg-error-msg" class="error"></p>
+            <p>¿Ya tienes cuenta? <a href="#" onclick="showSection('login-section')" class="link">Volver</a></p>
+        </div>
+
+        <div id="confirm-section" class="hidden">
+            <h2>Verificar Email</h2>
+            <p>Escribe el código enviado a tu correo:</p>
+            <input type="text" id="confirm-code" placeholder="Código de 6 dígitos">
+            <button onclick="confirmRegistration()">Verificar</button>
+            <p id="confirm-error-msg" class="error"></p>
         </div>
 
         <div id="download-section" class="hidden">
-            <h2>¡Hola, <span id="user-display">Usuario</span>!</h2>
+            <h2>Bienvenido, <span id="user-display"></span></h2>
             <div class="status-box">
-                <p>Tu licencia es válida.</p>
-                <p id="file-info" style="color: #4cd137; font-weight: bold;"></p>
+                <p>Licencia Activa ✅</p>
+                <p id="file-info"></p>
             </div>
-            
-            <button id="btn-download" onclick="getDownloadLink()">OBTENER JUEGO (.ZIP)</button>
-            
+            <button id="btn-download" onclick="getDownloadLink()">DESCARGAR JUEGO</button>
             <p id="status-msg"></p>
             <button onclick="logout()" class="secondary">Cerrar Sesión</button>
         </div>

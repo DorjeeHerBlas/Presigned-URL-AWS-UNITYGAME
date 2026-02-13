@@ -1,26 +1,18 @@
-// --- ⚠️ RELLENA ESTO CON TUS DATOS ---
 const poolData = {
-    UserPoolId: 'eu-north-1_o4xSSQGiK',       // UserPool ID
-    ClientId: '35cbbhp6mv494umuihlq2d1u1b'    // App Client ID
+    UserPoolId: 'eu-north-1_o4xSSQGiK',
+    ClientId: '35cbbhp6mv494umuihlq2d1u1b'
 };
 
-// Pega aquí la URL que obtuviste en el PASO 3.5 (Debe terminar en /prod)
-// Y añádele "/get-game" al final.
-const API_URL = 'https://s83rvjyf5h.execute-api.eu-north-1.amazonaws.com/prod/get-game'; 
-// -------------------------------------
+const API_URL = 'https://s83rvjyf5h.execute-api.eu-north-1.amazonaws.com/prod/get-game';
 
 var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-var cognitoUser;
+var tempUsername;
 
-// Verificar si ya hay sesión al cargar la página
 window.onload = function() {
     var currentUser = userPool.getCurrentUser();
-    if (currentUser != null) {
-        currentUser.getSession(function(err, session) {
-            if (err) { return; }
-            if (session.isValid()) {
-                console.log("Sesión recuperada");
-                // Guardar token fresco
+    if (currentUser) {
+        currentUser.getSession((err, session) => {
+            if (!err && session.isValid()) {
                 localStorage.setItem('idToken', session.getIdToken().getJwtToken());
                 showDownloadSection(currentUser.getUsername());
             }
@@ -28,107 +20,117 @@ window.onload = function() {
     }
 };
 
-function login() {
-    var username = document.getElementById("username").value;
-    var authenticationData = {
-        Username: username,
-        Password: document.getElementById("password").value,
-    };
+function register() {
+    const username = document.getElementById("reg-username").value;
+    const email = document.getElementById("reg-email").value;
+    const password = document.getElementById("reg-password").value;
+    const msg = document.getElementById("reg-error-msg");
 
-    var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-
-    var userData = {
-        Username: username,
-        Pool: userPool,
-    };
-
-    cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
-
-    cognitoUser.authenticateUser(authenticationDetails, {
-        onSuccess: function(result) {
-            console.log("Login exitoso!");
-            // El ID Token es el que usamos para autorizar contra API Gateway
-            var idToken = result.getIdToken().getJwtToken();
-            localStorage.setItem('idToken', idToken);
-
-            showDownloadSection(username);
-        },
-
-        onFailure: function(err) {
-            console.error(err);
-            document.getElementById("error-msg").innerText = "Error: " + (err.message || JSON.stringify(err));
-        },
-    });
-}
-
-function showDownloadSection(username) {
-    document.getElementById("login-section").classList.add("hidden");
-    document.getElementById("download-section").classList.remove("hidden");
-    document.getElementById("user-display").innerText = username;
-}
-
-function getDownloadLink() {
-    var btn = document.getElementById("btn-download");
-    var msg = document.getElementById("status-msg");
-    var fileInfo = document.getElementById("file-info");
-    
-    btn.disabled = true;
-    btn.innerText = "⏳ Conectando con servidor...";
-    msg.innerText = "";
-
-    var idToken = localStorage.getItem('idToken');
-
-    if (!idToken) {
-        alert("Tu sesión ha caducado.");
-        logout();
+    if (!username || !email || !password) {
+        msg.innerText = "Rellena todos los campos.";
         return;
     }
 
-    // Petición segura a tu API Gateway
-    fetch(API_URL, {
-        method: 'GET',
-        headers: {
-            'Authorization': idToken // Aquí va el carnet de identidad
-        }
-    })
-    .then(response => {
-        if (response.status === 401) throw new Error("No autorizado. Inicia sesión de nuevo.");
-        if (!response.ok) throw new Error("Error en el servidor: " + response.status);
-        return response.json();
-    })
-    .then(data => {
-        // La Lambda "Dynamic" que hicimos devuelve: { downloadUrl: "...", fileName: "..." }
-        
-        if (data.error) throw new Error(data.error);
+    // LISTA DE ATRIBUTOS (Incluyendo el obligatorio preferred_username)
+    var attributeList = [];
+    
+    // Atributo Email
+    attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
+        Name: 'email',
+        Value: email
+    }));
 
-        console.log("Archivo encontrado:", data.fileName);
-        fileInfo.innerText = "Descargando: " + data.fileName;
-        
-        // Iniciar descarga
-        window.location.href = data.downloadUrl;
-        
-        btn.disabled = false;
-        btn.innerText = "DESCARGA INICIADA";
-        setTimeout(() => { btn.innerText = "OBTENER JUEGO (.ZIP)"; }, 3000);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        msg.innerText = error.message;
-        msg.style.color = "#ff6b6b";
-        btn.disabled = false;
-        btn.innerText = "Reintentar";
-        
-        if (error.message.includes("No autorizado")) {
-            setTimeout(logout, 2000);
+    // Atributo Preferred Username (Cumpliendo con tu esquema obligatorio)
+    attributeList.push(new AmazonCognitoIdentity.CognitoUserAttribute({
+        Name: 'preferred_username',
+        Value: username
+    }));
+
+    userPool.signUp(username, password, attributeList, null, (err, result) => {
+        if (err) {
+            msg.innerText = err.message || JSON.stringify(err);
+            return;
+        }
+        tempUsername = result.user.getUsername();
+        showSection('confirm-section');
+    });
+}
+
+function confirmRegistration() {
+    const code = document.getElementById("confirm-code").value;
+    const userData = { Username: tempUsername, Pool: userPool };
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    cognitoUser.confirmRegistration(code, true, (err, result) => {
+        if (err) {
+            document.getElementById("confirm-error-msg").innerText = err.message;
+            return;
+        }
+        alert("Cuenta activada.");
+        showSection('login-section');
+    });
+}
+
+function login() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const authenticationData = { Username: username, Password: password };
+    const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
+    const userData = { Username: username, Pool: userPool };
+    const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+    cognitoUser.authenticateUser(authenticationDetails, {
+        onSuccess: (result) => {
+            localStorage.setItem('idToken', result.getIdToken().getJwtToken());
+            showDownloadSection(username);
+        },
+        onFailure: (err) => {
+            document.getElementById("error-msg").innerText = err.message;
         }
     });
 }
 
+function getDownloadLink() {
+    const btn = document.getElementById("btn-download");
+    const idToken = localStorage.getItem('idToken');
+    btn.disabled = true;
+    btn.innerText = "⏳ Generando enlace...";
+
+    fetch(API_URL, {
+        method: 'GET',
+        headers: { 'Authorization': idToken }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.downloadUrl) {
+            window.location.href = data.downloadUrl;
+            btn.innerText = "DESCARGA INICIADA";
+        } else {
+            throw new Error(data.error || "Error de servidor");
+        }
+    })
+    .catch(err => {
+        document.getElementById("status-msg").innerText = err.message;
+        btn.disabled = false;
+        btn.innerText = "Reintentar";
+    });
+}
+
+function showSection(id) {
+    ['login-section', 'register-section', 'confirm-section', 'download-section'].forEach(s => {
+        document.getElementById(s).classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+}
+
+function showDownloadSection(username) {
+    showSection('download-section');
+    document.getElementById("user-display").innerText = username;
+}
+
 function logout() {
-    var currentUser = userPool.getCurrentUser();
-    if (currentUser) {
-        currentUser.signOut();
-    }
+    const currentUser = userPool.getCurrentUser();
+    if (currentUser) currentUser.signOut();
     localStorage.removeItem('idToken');
     location.reload();
-}  
+}
