@@ -4,6 +4,10 @@ const poolData = {
 };
 
 const API_URL = 'https://s83rvjyf5h.execute-api.eu-north-1.amazonaws.com/prod/get-game';
+const PLATFORM_LABELS = {
+    mac: 'Mac',
+    windows: 'Windows'
+};
 
 var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
 var tempUsername;
@@ -90,13 +94,25 @@ function login() {
     });
 }
 
-function getDownloadLink() {
-    const btn = document.getElementById("btn-download");
+function getDownloadLink(platform) {
+    const btn = document.getElementById(`btn-download-${platform}`);
     const idToken = localStorage.getItem('idToken');
-    btn.disabled = true;
-    btn.innerText = "⏳ Generando enlace...";
+    const statusMsg = document.getElementById("status-msg");
+    const platformLabel = PLATFORM_LABELS[platform] || platform;
 
-    fetch(API_URL, {
+    if (!btn) return;
+
+    if (!idToken) {
+        statusMsg.innerText = "Tu sesión ha caducado. Vuelve a iniciar sesión.";
+        showSection('login-section');
+        return;
+    }
+
+    setDownloadButtonsDisabled(true);
+    statusMsg.innerText = "";
+    btn.innerText = `Generando enlace para ${platformLabel}...`;
+
+    fetch(`${API_URL}?platform=${encodeURIComponent(platform)}`, {
         method: 'GET',
         headers: { 'Authorization': idToken }
     })
@@ -104,15 +120,23 @@ function getDownloadLink() {
     .then(data => {
         if (data.downloadUrl) {
             window.location.href = data.downloadUrl;
-            btn.innerText = "DESCARGA INICIADA";
+            btn.innerText = `Descarga de ${platformLabel} iniciada`;
         } else {
             throw new Error(data.error || "Error de servidor");
         }
     })
     .catch(err => {
-        document.getElementById("status-msg").innerText = err.message;
-        btn.disabled = false;
-        btn.innerText = "Reintentar";
+        statusMsg.innerText = err.message;
+        btn.innerText = `Reintentar ${platformLabel}`;
+    })
+    .finally(() => {
+        setDownloadButtonsDisabled(false);
+    });
+}
+
+function setDownloadButtonsDisabled(disabled) {
+    document.querySelectorAll('[data-download-btn]').forEach(button => {
+        button.disabled = disabled;
     });
 }
 
