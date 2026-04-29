@@ -1,27 +1,37 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #0f0f1a;
-    color: #ecf0f1;
+    background:
+        linear-gradient(135deg, rgba(12, 17, 24, 0.94), rgba(26, 31, 40, 0.9)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none' stroke='%233f7d68' stroke-opacity='0.18'%3E%3Cpath d='M0 44h180M0 92h180M0 140h180M44 0v180M92 0v180M140 0v180'/%3E%3C/g%3E%3C/svg%3E");
+    color: #f4f7f5;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
+    padding: 24px;
+    box-sizing: border-box;
 }
 
 .container {
-    background: linear-gradient(145deg, #16213e, #1a1a2e);
+    background: rgba(18, 23, 30, 0.96);
     padding: 2.5rem;
-    border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    border-radius: 8px;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.35);
     text-align: center;
-    width: 350px;
-    border: 1px solid #2c3e50;
+    width: min(100%, 520px);
+    border: 1px solid rgba(127, 171, 145, 0.26);
+}
+
+h1,
+h2,
+p {
+    margin-top: 0;
 }
 
 /* Nuevos estilos para enlaces y separadores */
 .link {
-    color: #e94560;
+    color: #58c4a4;
     text-decoration: none;
     font-size: 0.9em;
 }
@@ -30,7 +40,7 @@ body {
 
 hr {
     border: 0;
-    border-top: 1px solid #2c3e50;
+    border-top: 1px solid rgba(127, 171, 145, 0.22);
     margin: 20px 0;
 }
 
@@ -43,13 +53,14 @@ input {
     margin: 15px auto;
     padding: 12px;
     border-radius: 5px;
-    border: 1px solid #2c3e50;
-    background-color: #0f0f1a;
+    border: 1px solid rgba(127, 171, 145, 0.28);
+    background-color: #0f141a;
     color: white;
+    box-sizing: border-box;
 }
 
 button {
-    background-color: #e94560;
+    background-color: #d95f43;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -58,4 +69,115 @@ button {
     font-weight: bold;
     width: 100%;
     margin-top: 15px;
+}
+
+button:hover:not(:disabled) {
+    background-color: #ee7355;
+}
+
+button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.secondary {
+    background: transparent;
+    border: 1px solid rgba(244, 247, 245, 0.25);
+}
+
+.secondary:hover:not(:disabled) {
+    background: rgba(244, 247, 245, 0.08);
+}
+
+.compact {
+    margin-top: 0;
+    width: auto;
+    padding: 10px 14px;
+}
+
+.download-header {
+    align-items: flex-start;
+    display: flex;
+    gap: 18px;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.license-status {
+    color: #77d2a5;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.download-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.platform-card {
+    align-items: center;
+    background: #171f27;
+    border: 1px solid rgba(127, 171, 145, 0.2);
+    border-radius: 8px;
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr auto;
+    padding: 16px;
+    text-align: left;
+}
+
+.platform-copy {
+    display: grid;
+    gap: 4px;
+}
+
+.platform-name {
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.platform-detail {
+    color: #b9c4bf;
+    font-size: 0.9rem;
+}
+
+.platform-card button {
+    margin-top: 0;
+    min-width: 170px;
+    width: auto;
+}
+
+.status-msg {
+    color: #ffbc8a;
+    min-height: 1.4em;
+    margin: 18px 0 0;
+}
+
+.error {
+    color: #ff8f8f;
+}
+
+@media (max-width: 560px) {
+    .container {
+        padding: 1.5rem;
+    }
+
+    .download-header,
+    .platform-card {
+        grid-template-columns: 1fr;
+    }
+
+    .download-header {
+        display: grid;
+    }
+
+    .compact,
+    .platform-card button {
+        width: 100%;
+    }
 }
