@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Launcher - Registro</title>
+    <title>Game Launcher - Descargas</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.2.0/dist/amazon-cognito-identity.min.js"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
@@ -11,7 +11,7 @@
 <body>
 
     <div class="container">
-        <h1>🎮 Game Launcher</h1>
+        <h1>Game Launcher</h1>
         
         <div id="login-section">
             <h2>Iniciar Sesión</h2>
@@ -42,14 +42,37 @@
         </div>
 
         <div id="download-section" class="hidden">
-            <h2>Bienvenido, <span id="user-display"></span></h2>
-            <div class="status-box">
-                <p>Licencia Activa ✅</p>
-                <p id="file-info"></p>
+            <div class="download-header">
+                <div>
+                    <p class="license-status">Licencia activa</p>
+                    <h2>Bienvenido, <span id="user-display"></span></h2>
+                </div>
+                <button onclick="logout()" class="secondary compact">Salir</button>
             </div>
-            <button id="btn-download" onclick="getDownloadLink()">DESCARGAR JUEGO</button>
-            <p id="status-msg"></p>
-            <button onclick="logout()" class="secondary">Cerrar Sesión</button>
+
+            <div class="download-grid" aria-label="Descargas disponibles">
+                <section class="platform-card">
+                    <div class="platform-copy">
+                        <span class="platform-name">macOS</span>
+                        <span class="platform-detail">Build para Mac</span>
+                    </div>
+                    <button id="btn-download-mac" data-download-btn onclick="getDownloadLink('mac')">
+                        Descargar Mac
+                    </button>
+                </section>
+
+                <section class="platform-card">
+                    <div class="platform-copy">
+                        <span class="platform-name">Windows</span>
+                        <span class="platform-detail">Build para PC</span>
+                    </div>
+                    <button id="btn-download-windows" data-download-btn onclick="getDownloadLink('windows')">
+                        Descargar Windows
+                    </button>
+                </section>
+            </div>
+
+            <p id="status-msg" class="status-msg" role="status"></p>
         </div>
     </div>
 
